@@ -1,4 +1,4 @@
-FROM ubuntu:latest
+FROM ubuntu:14.04
 
 MAINTAINER b00stfr3ak
 
@@ -12,17 +12,24 @@ RUN DEBIAN_FRONTEND=noninteractive apt-get -y install \
  libapr1-dev libaprutil1-dev php5 apache2 mysql-server git curl \
  ruby2.1 ruby2.1-dev build-essential
 
+RUN apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys 561F9B9CAC40B2F7
+RUN apt-get install -y apt-transport-https ca-certificates
 
-ADD /pf.conf /etc/apache2/pf.conf
+RUN sh -c 'echo deb https://oss-binaries.phusionpassenger.com/apt/passenger trusty main > /etc/apt/sources.list.d/passenger.list'
+RUN apt-get update
+
+RUN apt-get install -y libapache2-mod-passenger
+
+ADD /pf.conf /etc/apache2/sites-enabled/pf.conf
 
 RUN git clone https://github.com/pentestgeek/phishing-frenzy.git /var/www/phishing-frenzy
 RUN touch /etc/apache2/httpd.conf
 RUN chown www-data:www-data /etc/apache2/httpd.conf
 
-RUN gem install --no-rdoc --no-ri rails
-RUN gem install --no-rdoc --no-ri passenger -v 5.0.6
+RUN gem install --no-rdoc --no-ri bundler
+#RUN gem install --no-rdoc --no-ri passenger
 
-RUN passenger-install-apache2-module
+#RUN passenger-install-apache2-module
 
 ADD /apache2.conf /etc/apache2/apache2.conf
 
@@ -48,9 +55,10 @@ RUN sudo chown -R www-data:www-data /var/www/phishing-frenzy/
 
 RUN cd /var/www/phishing-frenzy/ && /etc/init.d/mysql start && bundle exec rake templates:load
 
-RUN chown -R www-data:www-data /etc/apache2/sites-available/
+#RUN chown -R www-data:www-data /etc/apache2/sites-available/
 
-RUN chown -R www-data:www-data /etc/apache2/sites-enabled/
+#RUN chown -R www-data:www-data /etc/apache2/sites-enabled/
+RUN rm -f /etc/apache2/sites-enabled/000-default.conf
 
 RUN chown -R www-data:www-data /var/www/phishing-frenzy/public/uploads/
 
