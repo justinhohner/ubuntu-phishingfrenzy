@@ -27,9 +27,6 @@ RUN touch /etc/apache2/httpd.conf
 RUN chown www-data:www-data /etc/apache2/httpd.conf
 
 RUN gem install --no-rdoc --no-ri bundler
-#RUN gem install --no-rdoc --no-ri passenger
-
-#RUN passenger-install-apache2-module
 
 ADD /apache2.conf /etc/apache2/apache2.conf
 
@@ -55,14 +52,11 @@ RUN sudo chown -R www-data:www-data /var/www/phishing-frenzy/
 
 RUN cd /var/www/phishing-frenzy/ && /etc/init.d/mysql start && bundle exec rake templates:load
 
-#RUN chown -R www-data:www-data /etc/apache2/sites-available/
-
-#RUN chown -R www-data:www-data /etc/apache2/sites-enabled/
-RUN rm -f /etc/apache2/sites-enabled/000-default.conf
-
 RUN chown -R www-data:www-data /var/www/phishing-frenzy/public/uploads/
 
 RUN chmod -R 755 /var/www/phishing-frenzy/public/uploads/
+
+RUN rm -f /etc/apache2/sites-enabled/000-default.conf
 
 ADD /startup.sh /startup.sh
 
